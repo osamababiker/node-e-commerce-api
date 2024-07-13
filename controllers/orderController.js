@@ -1,7 +1,7 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import { StatusCodes } from 'http-status-codes';
-import { CustomAPIError } from '../errors/index.js';
+import { CustomAPIError, BadRequestError } from '../errors/index.js';
 import { checkPermissions } from '../utils/index.js';
 
 const fakeStripeAPI = async ({ amount, currency }) => {
@@ -13,10 +13,10 @@ const createOrder = async (req, res) => {
   const { items: cartItems, tax, shippingFee } = req.body;
 
   if (!cartItems || cartItems.length < 1) {
-    throw new CustomAPIError.BadRequestError('No cart items provided');
+    throw new BadRequestError('No cart items provided');
   }
   if (!tax || !shippingFee) {
-    throw new CustomAPIError.BadRequestError('Please provide tax and shipping fee');
+    throw new BadRequestError('Please provide tax and shipping fee');
   }
 
   let orderItems = [];
