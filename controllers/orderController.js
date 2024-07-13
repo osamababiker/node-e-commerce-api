@@ -1,7 +1,7 @@
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import { StatusCodes } from 'http-status-codes';
-import { CustomAPIError, BadRequestError } from '../errors/index.js';
+import { CustomAPIError, BadRequestError, NotFoundError } from '../errors/index.js';
 import { checkPermissions } from '../utils/index.js';
 
 const fakeStripeAPI = async ({ amount, currency }) => {
@@ -25,7 +25,7 @@ const createOrder = async (req, res) => {
   for (const item of cartItems) {
     const dbProduct = await Product.findOne({ _id: item.product });
     if (!dbProduct) {
-      throw new CustomAPIError.NotFoundError(`No product with id : ${item.product}`);
+      throw new NotFoundError(`No product with id : ${item.product}`);
     }
     const { name, price, image, _id } = dbProduct;
     const singleOrderItem = {
@@ -64,7 +64,7 @@ const getSingleOrder = async (req, res) => {
   const { id: orderId } = req.params;
   const order = await Order.findOne({ _id: orderId });
   if (!order) {
-    throw new CustomAPIError.NotFoundError(`No order with id : ${orderId}`);
+    throw new NotFoundError(`No order with id : ${orderId}`);
   }
   checkPermissions(req.user, order.user);
   res.status(StatusCodes.OK).json({ order });
@@ -81,7 +81,7 @@ const updateOrder = async (req, res) => {
 
   const order = await Order.findOne({ _id: orderId });
   if (!order) {
-    throw new CustomAPIError.NotFoundError(`No order with id : ${orderId}`);
+    throw new NotFoundError(`No order with id : ${orderId}`);
   }
   checkPermissions(req.user, order.user);
 
